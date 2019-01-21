@@ -1,4 +1,4 @@
-HOME_DIR='/home/cnv-qe-jenkins'
+HOME_DIR='/root'
 
 # Install required packages
 yum -y install  make \
@@ -17,18 +17,20 @@ yum -y install  make \
                 xinetd \
                 syslinux \
                 syslinux-tftpboot \
-                tftp-server
+                tftp-server \
+		selinux-policy-devel
 
 # build and install openvswitch
 mkdir -p $HOME_DIR/rpmbuild/SOURCES
-wget http://openvswitch.org/releases/openvswitch-2.7.7.tar.gz
-cp openvswitch-2.7.7.tar.gz $HOME_DIR/rpmbuild/SOURCES/
+wget -P $HOME_DIR/ http://openvswitch.org/releases/openvswitch-2.7.7.tar.gz
+cp $HOME_DIR/openvswitch-2.7.7.tar.gz $HOME_DIR/rpmbuild/SOURCES/
+cd $HOME_DIR/rpmbuild/SOURCES/
 tar xfz openvswitch-2.7.7.tar.gz
 sed 's/openvswitch-kmod, //g' openvswitch-2.7.7/rhel/openvswitch.spec > openvswitch-2.7.7/rhel/openvswitch_no_kmod.spec
-rpmbuild -bb --nocheck $HOME_DIR/openvswitch-2.7.7/rhel/openvswitch_no_kmod.spec
-yum localinstall $HOME_DIR/rpmbuild/RPMS/x86_64/openvswitch-2.7.7*.rpm
+rpmbuild -bb --nocheck openvswitch-2.7.7/rhel/openvswitch_no_kmod.spec
+yum -y localinstall $HOME_DIR/rpmbuild/RPMS/x86_64/openvswitch-2.7.7-1.x86_64.rpm
 
-exit
+cd $HOME_DIR/pxeconfig
 
 # start and enable for next boot
 systemctl start openvswitch.service
@@ -50,7 +52,7 @@ touch /var/lib/tftpboot/pxelinux.cfg/default
 mkdir /var/lib/tftpboot/centos7
 
 # copy config files
-cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/ # ?
+cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/pxelinux.0
 cp dhcpd.conf /etc/dhcp/dhcpd.conf
 cp tftp /etc/xinetd.d/tftp
 cp default /var/lib/tftpboot/pxelinux.cfg/default
