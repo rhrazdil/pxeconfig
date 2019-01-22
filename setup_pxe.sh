@@ -1,4 +1,4 @@
-HOME_DIR='/home/cnv-qe-jenkins'
+HOME_DIR='/root'
 
 # Install required packages
 yum -y install  make \
@@ -17,7 +17,8 @@ yum -y install  make \
                 xinetd \
                 syslinux \
                 syslinux-tftpboot \
-                tftp-server
+                tftp-server \
+		selinux-policy-devel
 
 # build and install openvswitch
 if hash ovs-vsctl --version >/dev/null; then
