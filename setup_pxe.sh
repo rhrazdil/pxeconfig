@@ -18,7 +18,7 @@ yum -y install  make \
                 syslinux \
                 syslinux-tftpboot \
                 tftp-server \
-		selinux-policy-devel
+		        selinux-policy-devel
 
 # build and install openvswitch
 if hash ovs-vsctl --version >/dev/null; then
@@ -49,7 +49,6 @@ else
     # enable the interface
     ifconfig testbridge up
 fi
-
 
 # add ip tables rule
 if iptables --list-rules  INPUT | grep testbridge >/dev/null ; then
