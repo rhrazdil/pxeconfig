@@ -18,10 +18,10 @@ yum -y install  make \
                 syslinux \
                 syslinux-tftpboot \
                 tftp-server \
-		        selinux-policy-devel
+                selinux-policy-devel
 
-# build and install openvswitch
-if hash ovs-vsctl --version >/dev/null; then
+if hash ovs-vsctl --version 2>/dev/null; then
+    # build and install openvswitch
     mkdir -p $HOME_DIR/rpmbuild/SOURCES
     wget -P $HOME_DIR/ http://openvswitch.org/releases/openvswitch-2.7.7.tar.gz
     cp $HOME_DIR/openvswitch-2.7.7.tar.gz $HOME_DIR/rpmbuild/SOURCES/
@@ -35,10 +35,6 @@ else
     echo "Openvswitch installed, skipping"
 fi
 
-# start and enable for next boot
-systemctl start openvswitch.service
-chkconfig openvswitch on
-
 if ip a | grep testbridge > /dev/null ; then
     echo "Test bridge already exists, skipping"
 else
@@ -50,11 +46,11 @@ else
     ifconfig testbridge up
 fi
 
-# add ip tables rule
+# add iptables rule
 if iptables --list-rules  INPUT | grep testbridge >/dev/null ; then
-    iptables -I INPUT 1 -s 192.168.0.0/24 -i testbridge -p udp -m udp --dport 69 -m state --state NEW,ESTABLISHED -j ACCEPT
-else
     echo 'Iptables rule already exists, skipping'
+else
+    iptables -I INPUT 1 -s 192.168.0.0/24 -i testbridge -p udp -m udp --dport 69 -m state --state NEW,ESTABLISHED -j ACCEPT
 fi
 
 # prepare tftpbood directory structure
@@ -62,9 +58,9 @@ mkdir -p /var/lib/tftpboot/pxelinux.cfg
 mkdir -p /var/lib/tftpboot/centos7
 
 # copy config files
-cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/pxelinux.0
-cp dhcpd.conf /etc/dhcp/dhcpd.conf
-cp tftp /etc/xinetd.d/tftp
+yes | cp /usr/share/syslinux/pxelinux.0 /var/lib/tftpboot/pxelinux.0
+yes | cp dhcpd.conf /etc/dhcp/dhcpd.conf
+yes | cp tftp /etc/xinetd.d/tftp
 cp default /var/lib/tftpboot/pxelinux.cfg/default
 
 if [ ! -f /var/lib/tftpboot/centos7/initrd.img ]; then
@@ -73,7 +69,7 @@ if [ ! -f /var/lib/tftpboot/centos7/initrd.img ]; then
     wget http://mirror.centos.org/centos/7/os/x86_64/images/pxeboot/vmlinuz
     cd --
 else
-    echo "Initrd.img and vmlinuz already downloaded"
+    echo "Initrd.img and vmlinuz already present"
 fi
 
 # start services
