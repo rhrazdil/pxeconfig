@@ -82,5 +82,5 @@ else
 fi
 
 # start services
-service xinetd start
+systemctl start xinetd 
 systemctl start dhcpd
