@@ -1,7 +1,10 @@
 HOME_DIR='/root'
 
-# Install required packages
-yum -y install  make \
+if hash ovs-vsctl 2>/dev/null; then
+    echo "Openvswitch installed, skipping"
+else
+    # Install required packages
+    yum -y install  make \
                 gcc \
                 openssl-devel \
                 autoconf automake \
@@ -19,8 +22,6 @@ yum -y install  make \
                 syslinux-tftpboot \
                 tftp-server \
                 selinux-policy-devel
-
-if hash ovs-vsctl --version 2>/dev/null; then
     # build and install openvswitch
     mkdir -p $HOME_DIR/rpmbuild/SOURCES
     wget -P $HOME_DIR/ http://openvswitch.org/releases/openvswitch-2.7.7.tar.gz
@@ -31,8 +32,6 @@ if hash ovs-vsctl --version 2>/dev/null; then
     rpmbuild -bb --nocheck openvswitch-2.7.7/rhel/openvswitch_no_kmod.spec
     yum -y localinstall $HOME_DIR/rpmbuild/RPMS/x86_64/openvswitch-2.7.7-1.x86_64.rpm
     cd $HOME_DIR/pxeconfig
-else
-    echo "Openvswitch installed, skipping"
 fi
 
 if ip a | grep testbridge > /dev/null ; then
@@ -52,6 +51,15 @@ if iptables --list-rules  INPUT | grep testbridge >/dev/null ; then
 else
     iptables -I INPUT 1 -s 192.168.0.0/24 -i testbridge -p udp -m udp --dport 69 -m state --state NEW,ESTABLISHED -j ACCEPT
 fi
+
+# store node eth0 IP address
+node_ip=`/sbin/ifconfig eth0 | grep 'inet ' | cut -d: -f2 | awk '{ print $2}'`
+# store testbridge interface mac address
+testbridge_mac=`cat /sys/class/net/testbridge/address`
+
+# fill dhcpd.conf addresses
+sed -i "s/SLAVE_IP/$node_ip/g" dhcpd.conf
+sed -i "s/INT_MAC/$testbridge_mac/g" dhcpd.conf
 
 # prepare tftpbood directory structure
 mkdir -p /var/lib/tftpboot/pxelinux.cfg
