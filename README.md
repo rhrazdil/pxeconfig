@@ -2,4 +2,7 @@
 Configure pxe boot on a machine
 
 # Usage
-Before running setup_pxe.sh, edit dhcpd.conf to align with your environment.
+sudo su -
+git clone https://github.com/rhrazdil/pxeconfig.git
+cd pxeconfig
+./setup_pxe.sh
