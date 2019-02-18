@@ -1,11 +1,12 @@
 HOME_DIR='/root'
 
-yum -y install  dhcp \
+yum -y install dhcp \
     xinetd \
     syslinux \
     syslinux-tftpboot \
     tftp-server \
-    
+    wget \
+    selinux-policy-devel
 
 if hash ovs-vsctl 2>/dev/null; then
     echo "Openvswitch installed, skipping"
@@ -21,9 +22,7 @@ else
                 openssl-devel \
                 kernel-devel \
                 kernel-debug-devel \
-                libtool \
-                selinux-policy-devel \
-                wget            
+                libtool          
     # build and install openvswitch
     mkdir -p $HOME_DIR/rpmbuild/SOURCES
     wget -P $HOME_DIR/ http://openvswitch.org/releases/openvswitch-2.7.7.tar.gz
