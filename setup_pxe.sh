@@ -84,3 +84,7 @@ fi
 # start services
 systemctl start xinetd 
 systemctl start dhcpd
+
+# prepare directory for local storage
+mkdir -p /tmp/mylocalstorage/vol1
+chmod --reference=/mnt/local-storage/hdd/disk1 /tmp/mylocalstorage/vol1
