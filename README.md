@@ -1,5 +1,5 @@
 # pxeconfig
-Configure pxe boot on a machine
+Configure pxe boot on a machine, installs tftp and dhcp server, creates virtual interface 'testbridge', prepares PXE with CentOS remote installation
 
 # Usage
 ```
